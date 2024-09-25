@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -27,6 +27,12 @@ function CommentsList() {
     } = useForm({
         resolver: yupResolver(schema),
     });
+    const initLocalStorageData = useCallback(() => {
+        const createFormData = JSON.parse(localStorage.getItem('createFormData'));
+        if (createFormData) return;
+
+        resetCreateFormDataStorage();
+    }, []);
 
     const [isOpenModal, setIsOpenModal] = useState(false);
 
@@ -38,7 +44,7 @@ function CommentsList() {
             window.scrollTo(0, scrollPositionY);
         });
         initLocalStorageData();
-    }, [dispatch]);
+    }, [dispatch, initLocalStorageData]);
 
     function removeComment(id, callback) {
         dispatch(deleteComment(id)).catch(callback);
@@ -57,13 +63,6 @@ function CommentsList() {
 
     function resetCreateFormDataStorage() {
         localStorage.setItem('createFormData', JSON.stringify({ body: '' }));
-    }
-
-    function initLocalStorageData() {
-        const createFormData = JSON.parse(localStorage.getItem('createFormData'));
-        if (createFormData) return;
-
-        resetCreateFormDataStorage();
     }
 
     function onFieldChange(value, name) {
